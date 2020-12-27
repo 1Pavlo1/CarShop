@@ -30,6 +30,18 @@ namespace CarShop.Controllers
             }
             return View(brand);
         }
+        [HttpPost]
+        public IActionResult Delete(int id)
+        {
+            var brand = _dataBase.Brands.Find(id);
+
+            if (brand == null)
+                return NotFound();
+            
+            _dataBase.Remove(brand);
+            _dataBase.SaveChanges();
+            return RedirectToAction("Index");
+        }
         public IActionResult Index()
         {
             return View(_dataBase.Brands.ToList());

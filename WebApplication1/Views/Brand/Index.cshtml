@@ -28,10 +28,17 @@
                     <td>
                         @Html.DisplayFor(b => item.Name)
                     </td>
-                    <td class="text-right">Edit | Delete</td>
+                    <td class="text-right">
+                        <div class="btn-group" role="group">
+                            <a type="button" class="btn btn-primary btn-si" href="@Url.Action("/Edit")/@item.Id">Edit</a>
+                            <form method="post" action="Delete">
+                                <input onclick="if (!confirm('Are you really want to delete?')){ return false}" type="submit" class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id" value="Delete" />
+                            </form>
+                        </div>
+                    </td>
                 </tr>
             }
         </table>
-    </divclass="col-6>
+    </div>
 </div>
 
