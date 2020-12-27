@@ -1,0 +1,37 @@
+﻿@model IEnumerable<CarShop.Models.Brand>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<br /><br />
+
+<div class="row">
+    <div class="col-6">
+        <h2 class="text-info">Brands of cars</h2>
+    </div>
+    <div class="col-6 text-right">
+        <a class="btn btn-info" asp-action="Create">Add new brand</a>
+    </div>
+    <br />
+    <div class="col-12">
+        <table class="table table-striped border">
+            <tr class="table-info">
+                <th>
+                    @Html.DisplayNameFor(b => b.Name)
+                </th>
+                <th></th>
+            </tr>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(b => item.Name)
+                    </td>
+                    <td class="text-right">Edit | Delete</td>
+                </tr>
+            }
+        </table>
+    </divclass="col-6>
+</div>
+
