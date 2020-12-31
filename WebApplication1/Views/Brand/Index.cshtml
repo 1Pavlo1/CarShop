@@ -28,14 +28,7 @@
                     <td>
                         @Html.DisplayFor(b => item.Name)
                     </td>
-                    <td class="text-right">
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-primary" href="@Url.Action("Edit")/@item.Id"><i class="fas fa-edit"></i></button>
-                            <form method="post" action="Delete">
-                                <button onclick="if (!confirm('Are you really want to delete?')){ return false}" type="submit" class="btn btn-danger align-self-center" asp-action="Delete" asp-route-id="@item.Id"><i class="far fa-trash-alt"></i></button>
-                            </form>
-                        </div>
-                    </td>
+                    <partial name="_TableButtonPartial" model="item.Id" />
                 </tr>
             }
         </table>

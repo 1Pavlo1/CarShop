@@ -43,5 +43,37 @@ namespace CarShop.Controllers
 
             return RedirectToAction("Index");
         }
+        public IActionResult Edit(int id)
+        {
+            ModelVM.Model = _dataBase.Models.Include(b => b.Brand).SingleOrDefault(b => b.Id == id);
+
+            if (ModelVM.Model == null)
+                return NotFound();
+
+            return View(ModelVM);
+        }
+        [HttpPost, ActionName("Edit")]
+        public IActionResult EditPost()
+        {
+            if (!ModelState.IsValid)
+                return View(ModelVM);
+
+            _dataBase.Update(ModelVM.Model);
+            _dataBase.SaveChanges();
+
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public IActionResult Delete(int id)
+        {
+            var model = _dataBase.Models.Find(id);
+
+            if (model == null)
+                return NotFound();
+
+            _dataBase.Models.Remove(model);
+            _dataBase.SaveChanges();
+            return RedirectToAction("Index");
+        }
     }
 }
