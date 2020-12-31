@@ -42,6 +42,26 @@ namespace CarShop.Controllers
             _dataBase.SaveChanges();
             return RedirectToAction("Index");
         }
+        public IActionResult Edit(int id)
+        {
+            var brand = _dataBase.Brands.Find(id);
+
+            if (brand == null)
+                return NotFound();
+
+            return View(brand);
+        }
+        [HttpPost]
+        public IActionResult Edit(Brand brand)
+        {
+            if (ModelState.IsValid)
+            {
+                _dataBase.Update(brand);
+                _dataBase.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            return View(brand);
+        }
         public IActionResult Index()
         {
             return View(_dataBase.Brands.ToList());

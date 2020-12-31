@@ -1,24 +1,29 @@
-﻿@model IEnumerable<CarShop.Models.Brand>
+﻿
+@model IEnumerable<CarShop.Models.Model>
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<br /><br />
+<br />
+<br />
 
 <div class="row">
     <div class="col-6">
         <h2 class="text-info">Brands of cars</h2>
     </div>
     <div class="col-6 text-right">
-        <a class="btn btn-info" asp-action="Create"><i class="fas fa-car"></i> &nbsp; Add new brand</a>
+        <a class="btn btn-info" asp-action="Create"><i class="fas fa-car"></i> &nbsp; Add new model</a>
     </div>
     <br />
     <div class="col-12">
         <table class="table table-striped border">
             <tr class="table-info">
                 <th>
-                    @Html.DisplayNameFor(b => b.Name)
+                    @Html.DisplayNameFor(b => b.Brand)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(m => m.Name)
                 </th>
                 <th></th>
             </tr>
@@ -26,7 +31,10 @@
             {
                 <tr>
                     <td>
-                        @Html.DisplayFor(b => item.Name)
+                        @Html.DisplayFor(b => item.Brand.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => item.Name)
                     </td>
                     <td class="text-right">
                         <div class="btn-group" role="group">
@@ -40,5 +48,4 @@
             }
         </table>
     </div>
-</div>
-
+    </div>
