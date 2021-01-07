@@ -2,7 +2,7 @@
 <td class="text-right">
     <div class="btn-group" role="group">
         <form method="post" action="Delete">
-            <a type="button" class="btn btn-primary rounded-0" href="@Url.Action("Edit")/@Model"><i class="fas fa-edit"></i></a>
+            <a type="button" class="btn btn-primary" href="@Url.Action("Edit")/@Model"><i class="fas fa-edit"></i></a>
             <button onclick="if (!confirm('Are you really want to delete?')){ return false}" type="submit" class="btn btn-danger align-self-center" asp-action="Delete" asp-route-id="@Model"><i class="far fa-trash-alt"></i></button>
         </form>
     </div>

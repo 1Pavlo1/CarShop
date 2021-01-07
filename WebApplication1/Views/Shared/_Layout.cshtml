@@ -5,6 +5,9 @@
     <title>Car Shop</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://kit.fontawesome.com/8dce732682.js" crossorigin="anonymous"></script>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -26,6 +29,7 @@
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" asp-controller="Brand" asp-action="Index">Brands</a>
                             <a class="dropdown-item" asp-controller="Model" asp-action="Index">Models</a>
+                            <a class="dropdown-item" asp-controller="Car" asp-action="Index">Cars</a>
                             @if (User.IsInRole(Roles.Admin))
                             {
                                 <a class="dropdown-item" id="register" asp-area="Identity" asp-page="/Account/Register">Add user</a>
