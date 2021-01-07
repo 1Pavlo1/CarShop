@@ -13,7 +13,7 @@ namespace CarShop.Models
         public CarShopContext(DbContextOptions<CarShopContext> options) :
             base(options)
         {
-
+            Database.EnsureCreated();
         }
 
         public DbSet<Brand> Brands { get; set; }

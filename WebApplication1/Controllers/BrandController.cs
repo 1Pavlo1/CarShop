@@ -4,9 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using CarShop.Models;
+using Microsoft.AspNetCore.Authorization;
+using CarShop.Helpers;
 
 namespace CarShop.Controllers
 {
+    [Authorize(Roles = Roles.Admin + "," + Roles.Executive)]
     public class BrandController : Controller
     {
         private CarShopContext _dataBase;

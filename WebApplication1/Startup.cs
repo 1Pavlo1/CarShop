@@ -28,8 +28,10 @@ namespace CarShop
         {
             services.AddControllersWithViews();
             services.AddDbContext<CarShopContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                    .AddEntityFrameworkStores<CarShopContext>();
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                    .AddEntityFrameworkStores<CarShopContext>()
+                    .AddDefaultUI()
+                    .AddDefaultTokenProviders();
             services.AddRazorPages();
         }
 

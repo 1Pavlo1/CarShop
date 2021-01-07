@@ -10,8 +10,8 @@ namespace CarShop.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        [DisplayName("Skype")]
-        public string SkypeNumber { get; set; }
+        [DisplayName("Office Number")]
+        public string TelNumber { get; set; }
        
         [NotMapped]
         public bool IsAdmin { get; set; }

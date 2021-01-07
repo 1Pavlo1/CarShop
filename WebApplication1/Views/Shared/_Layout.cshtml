@@ -1,4 +1,5 @@
-﻿<html>
+﻿@using CarShop.Helpers
+<html>
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>Car Shop</title>
@@ -11,21 +12,27 @@
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
                     <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Masters
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" asp-controller="Brand" asp-action="Index">Brands</a>
-                        <a class="dropdown-item" asp-controller="Model" asp-action="Index">Models</a>
-                    </div>
+                @if (User.IsInRole(Roles.Admin) || User.IsInRole(Roles. Executive))
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Masters
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" asp-controller="Brand" asp-action="Index">Brands</a>
+                            <a class="dropdown-item" asp-controller="Model" asp-action="Index">Models</a>
+                            @if (User.IsInRole(Roles.Admin))
+                            {
+                                <a class="dropdown-item" id="register" asp-area="Identity" asp-page="/Account/Register">Add user</a>
+                            }
+                        </div>
                 </li>
+                }
             </ul>
             <partial name="_LoginPartial" />
         </div>
