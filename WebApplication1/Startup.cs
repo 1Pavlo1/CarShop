@@ -36,6 +36,7 @@ namespace CarShop
                     .AddDefaultUI()
                     .AddDefaultTokenProviders();
             services.AddRazorPages();
+            services.AddCloudscribePagination();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

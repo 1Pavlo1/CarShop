@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
+using cloudscribe.Pagination.Models;
 
 namespace CarShop.Controllers
 {
@@ -31,10 +32,22 @@ namespace CarShop.Controllers
                 Car = new Models.Car()
             };
         }
-        public IActionResult Index()
+        public IActionResult Index(int pageNumber = 1, int pageSize = 5)
         {
-            var cars = _dataBase.Cars.Include(b => b.Brand).Include(m=>m.Model);
-            return View(cars.ToList());
+            int unsizedValues = (pageNumber * pageSize) - pageSize;
+            var cars = _dataBase.Cars.Include(b => b.Brand).Include(m => m.Model)
+                       .Skip(unsizedValues)
+                       .Take(pageSize);
+
+            var pagedCarList = new PagedResult<Car>
+            {
+                Data = cars.AsNoTracking().ToList(),
+                TotalItems = _dataBase.Cars.Count(),
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            return View(pagedCarList);
         }
         public IActionResult Create()
         {
