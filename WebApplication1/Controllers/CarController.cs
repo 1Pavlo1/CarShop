@@ -32,17 +32,42 @@ namespace CarShop.Controllers
                 Car = new Models.Car()
             };
         }
-        public IActionResult Index(int pageNumber = 1, int pageSize = 5)
+        public IActionResult Index(string searchString, string sortOrder, int pageNumber = 1, int pageSize = 5)
         {
+            ViewBag.CurrenrSortOrder = sortOrder;
+            ViewBag.CurrentFilter = searchString;
+            ViewBag.PriceSortParam = String.IsNullOrEmpty(sortOrder) ? "price_desc" : "";
             int unsizedValues = (pageNumber * pageSize) - pageSize;
-            var cars = _dataBase.Cars.Include(b => b.Brand).Include(m => m.Model)
-                       .Skip(unsizedValues)
-                       .Take(pageSize);
+           
+            var cars = from c in _dataBase.Cars.Include(b => b.Brand).Include(m => m.Model)
+                       select c;
+            
+            var carCount = cars.Count();
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                cars = cars.Where(c => c.Brand.Name.Contains(searchString));
+                carCount = cars.Count();
+            }                
+
+            switch(sortOrder)
+            {
+                case "price_desc":
+                    cars = cars.OrderByDescending(c => c.Price);
+                    break;
+
+                default:
+                    cars = cars.OrderBy(c => c.Price);
+                    break;
+            }
+            cars=cars
+                .Skip(unsizedValues)
+                .Take(pageSize);
 
             var pagedCarList = new PagedResult<Car>
             {
                 Data = cars.AsNoTracking().ToList(),
-                TotalItems = _dataBase.Cars.Count(),
+                TotalItems = carCount,
                 PageNumber = pageNumber,
                 PageSize = pageSize
             };
