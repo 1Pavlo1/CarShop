@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using CarShop.Controllers.Resources;
 using CarShop.Helpers;
 using CarShop.Models;
 using CarShop.Models.ViewModel;
@@ -15,11 +17,15 @@ namespace CarShop.Controllers
     public class ModelController : Controller
     {
         private CarShopContext _dataBase;
+        private readonly IMapper _mapper;
+
         [BindProperty]
         public ModelViewModel ModelVM { get; set; }
-        public ModelController(CarShopContext dataBase)
+        public ModelController(CarShopContext dataBase, IMapper mapper)
         {
             _dataBase = dataBase;
+            _mapper = mapper;
+
             ModelVM = new ModelViewModel()
             {
                 Brands = _dataBase.Brands.ToList(),
@@ -35,6 +41,7 @@ namespace CarShop.Controllers
         {
             return View(ModelVM);
         }
+
         [HttpPost, ActionName("Create")]
         public IActionResult CreatePost()
         {
@@ -55,6 +62,7 @@ namespace CarShop.Controllers
 
             return View(ModelVM);
         }
+
         [HttpPost, ActionName("Edit")]
         public IActionResult EditPost()
         {
@@ -66,6 +74,7 @@ namespace CarShop.Controllers
 
             return RedirectToAction("Index");
         }
+
         [HttpPost]
         public IActionResult Delete(int id)
         {
@@ -78,12 +87,16 @@ namespace CarShop.Controllers
             _dataBase.SaveChanges();
             return RedirectToAction("Index");
         }
+
         [AllowAnonymous]
         [HttpGet("api/models/{brandId}")]
-        public IEnumerable<Model> Models(int brandId)
+        public IEnumerable<ModelResources> Models(int brandId)
         {
-            return _dataBase.Models.ToList()
-                   .Where(m => m.BrandId == brandId);
+            var models = _dataBase.Models.ToList();
+            var modelResources = _mapper.Map<List<Model>, List<ModelResources>>(models)
+                                 .Where(m => m.BrandId == brandId);
+
+            return modelResources;
         }
     }
 }
