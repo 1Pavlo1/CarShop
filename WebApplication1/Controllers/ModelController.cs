@@ -78,5 +78,12 @@ namespace CarShop.Controllers
             _dataBase.SaveChanges();
             return RedirectToAction("Index");
         }
+        [AllowAnonymous]
+        [HttpGet("api/models/{brandId}")]
+        public IEnumerable<Model> Models(int brandId)
+        {
+            return _dataBase.Models.ToList()
+                   .Where(m => m.BrandId == brandId);
+        }
     }
 }

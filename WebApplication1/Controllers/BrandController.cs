@@ -68,6 +68,6 @@ namespace CarShop.Controllers
         public IActionResult Index()
         {
             return View(_dataBase.Brands.ToList());
-        }
+        }       
     }
 }

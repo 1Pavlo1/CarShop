@@ -5,6 +5,35 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<script>
+    $(document).ready(function () {
+        var brandDDL = $("#Brand");
+        var modelDDL = $("#Model");
+        modelDDL.prop('disabled', true);
+
+        brandDDL.change(function () {
+            if ($(this).val() == "0") {
+                modelDDL.prop('disabled', true);
+                modelDDL.val("0");
+            }
+            else {
+                $.ajax({
+                    url: "/api/models/" + $(this).val(),
+                    method: "get",
+                    success: function (data) {                        
+                        modelDDL.prop('disabled', false);
+                        modelDDL.empty();
+                        modelDDL.append($('<option/>', {value: '0', text: '-----Select-----' }));
+                        $(data).each(function (index, item) {
+                            modelDDL.append($('<option/>', {value: item.id, text: item.name }));
+                        });
+                    }
+                });
+            }
+        });
+    });
+</script>
+
 <br />
 <h2 class="text-info">Add car</h2>
 <form method="post" enctype="multipart/form-data" action="Create">
@@ -13,7 +42,7 @@
             <label asp-for="Brands"></label>
         </div>
         <div class="col-4">
-            <select asp-for="Car.BrandId" asp-items="Model.Brands.ToSelectListItem()" class="form-control"></select>
+            <select asp-for="Car.BrandId" asp-items="Model.Brands.ToSelectListItem()" class="form-control" id="Brand"></select>
             <span asp-validation-for="Car.BrandId" class="text-danger"></span>
         </div>
         <div class="col-auto">
@@ -28,7 +57,7 @@
             <label asp-for="Models"></label>
         </div>
         <div class="col-4">
-            <select asp-for="Car.ModelId" asp-items="Model.Models.ToSelectListItem()" class="form-control"></select>
+            <select asp-for="Car.ModelId" asp-items="Model.Models.ToSelectListItem()" class="form-control" id="Model"></select>
             <span asp-validation-for="Car.ModelId" class="text-danger"></span>
         </div>
     </div>
