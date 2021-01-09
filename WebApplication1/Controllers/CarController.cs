@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using cloudscribe.Pagination.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace CarShop.Controllers
 {
@@ -32,6 +33,7 @@ namespace CarShop.Controllers
                 Car = new Models.Car()
             };
         }
+        [AllowAnonymous]
         public IActionResult Index(string searchString, string sortOrder, int pageNumber = 1, int pageSize = 5)
         {
             ViewBag.CurrenrSortOrder = sortOrder;
@@ -80,7 +82,7 @@ namespace CarShop.Controllers
         }
         [HttpPost, ActionName("Create")]
         public IActionResult CreatePost()
-        {
+        {        
             if (!ModelState.IsValid)
             {
                 CarVM.Brands = _dataBase.Brands.ToList();
@@ -89,56 +91,41 @@ namespace CarShop.Controllers
             }
 
             _dataBase.Add(CarVM.Car);
+
+            UploadImage();
+
             _dataBase.SaveChanges();
-
-            var carId = CarVM.Car.Id;
-            var imgRootPath = _webHostEnvironment.WebRootPath;
-            var files = HttpContext.Request.Form.Files;
-            var savedCar = _dataBase.Cars.Find(carId);
-
-            if(files.Count!=0)
-            {
-                var imagePath = @"images\car\";
-                var extension = Path.GetExtension(files[0].FileName);
-                var relativeImagePath = imagePath + carId + extension;
-                var absImagePath = Path.Combine(imgRootPath, relativeImagePath);
-
-                using(var fileStream = new FileStream(absImagePath, FileMode.Create))
-                {
-                    files[0].CopyTo(fileStream);
-                }
-
-                savedCar.ImagePath = relativeImagePath;
-                _dataBase.SaveChanges();
-            }
-            else
-            {
-                savedCar.ImagePath = @"images\car\notfound.jpg";
-                _dataBase.SaveChanges();
-            }
-           
             return RedirectToAction("Index");
         }
-        //public IActionResult Edit(int id)
-        //{
-        //    ModelVM.Model = _dataBase.Models.Include(b => b.Brand).SingleOrDefault(b => b.Id == id);
+        
+        public IActionResult Edit(int id)
+        {
+            CarVM.Car = _dataBase.Cars.SingleOrDefault(c => c.Id == id);            
 
-        //    if (ModelVM.Model == null)
-        //        return NotFound();
+            CarVM.Models = _dataBase.Models.Where(m => m.BrandId == CarVM.Car.BrandId);
 
-        //    return View(ModelVM);
-        //}
-        //[HttpPost, ActionName("Edit")]
-        //public IActionResult EditPost()
-        //{
-        //    if (!ModelState.IsValid)
-        //        return View(ModelVM);
+            if (CarVM.Car == null)
+                return NotFound();
 
-        //    _dataBase.Update(ModelVM.Model);
-        //    _dataBase.SaveChanges();
+            return View(CarVM);
+        }
+        [HttpPost, ActionName("Edit")]
+        public IActionResult EditPost()        
+        {
 
-        //    return RedirectToAction("Index");
-        //}
+            if (!ModelState.IsValid)
+            {
+                CarVM.Brands = _dataBase.Brands.ToList();
+                CarVM.Models = _dataBase.Models.ToList();
+                return View(CarVM);
+            }            
+            _dataBase.Update(CarVM.Car);
+
+            UploadImage();
+
+            _dataBase.SaveChanges();
+            return RedirectToAction("Index");
+        }
         [HttpPost]
         public IActionResult Delete(int id)
         {
@@ -150,6 +137,39 @@ namespace CarShop.Controllers
             _dataBase.Cars.Remove(car);
             _dataBase.SaveChanges();
             return RedirectToAction("Index");
+        }
+        [AllowAnonymous]
+        public IActionResult ViewDetails(int id)
+        {
+            CarVM.Car = _dataBase.Cars.SingleOrDefault(c => c.Id == id);
+
+            if (CarVM.Car == null)
+                return NotFound();
+
+            return View(CarVM);
+        }
+
+        private void UploadImage()
+        {
+            var carId = CarVM.Car.Id;
+            var imgRootPath = _webHostEnvironment.WebRootPath;
+            var files = HttpContext.Request.Form.Files;
+            var savedCar = _dataBase.Cars.Find(carId);
+
+            if (files.Count != 0)
+            {
+                var imagePath = @"images\car\";
+                var extension = Path.GetExtension(files[0].FileName);
+                var relativeImagePath = imagePath + carId + extension;
+                var absImagePath = Path.Combine(imgRootPath, relativeImagePath);
+
+                using (var fileStream = new FileStream(absImagePath, FileMode.Create))
+                {
+                    files[0].CopyTo(fileStream);
+                }
+
+                savedCar.ImagePath = relativeImagePath;
+            }
         }
     }
 }

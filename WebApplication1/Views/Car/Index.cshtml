@@ -1,4 +1,5 @@
 ﻿@model cloudscribe.Pagination.Models.PagedResult<CarShop.Models.Car>
+@using CarShop.Helpers
 @{
     ViewData["Title"] = "Index";
     ViewData["Controller"] = "Car";
@@ -27,9 +28,12 @@
     <div class="col-6">
         <h2 class="text-info">Cars</h2>
     </div>
-    <div class="col-6 text-right">
-        <a class="btn btn-info" asp-action="Create"><i class="fas fa-car"></i> &nbsp; Add new car</a>
-    </div>
+    @if (User.IsInRole(Roles.Admin) || User.IsInRole(Roles.Executive))
+    {
+        <div class="col-6 text-right">
+            <a class="btn btn-info" asp-action="Create"><i class="fas fa-car"></i> &nbsp; Add new car</a>
+        </div>
+    }
     <br />
     <div class="col-12">
         <table class="table table-striped border">
@@ -40,7 +44,14 @@
                     <a asp-action="Index" asp-route-sortOrder="@ViewBag.PriceSortParam" asp-route-pageNumber="@Model.PageNumber">Price</a>
                 </th>
                 <th>Seller information</th>
-                <th></th>
+                @if (User.IsInRole(Roles.Admin) || User.IsInRole(Roles.Executive))
+                {
+                    <th class="text-right"></th>
+                }
+                else
+                {
+                     <th>View details</th>
+                }
             </tr>
             @foreach (var item in Model.Data)
             {
@@ -57,7 +68,18 @@
                         <b>Phone: </b>@Html.DisplayFor(m => item.SellerPhone)<br />
                         <b>Email: </b>@Html.DisplayFor(m => item.SellerEmail)
                     </td>
-                    <partial name="_TableButtonPartial" model="item.Id" />
+                    @if (User.IsInRole(Roles.Admin) || User.IsInRole(Roles.Executive))
+                    {
+                        <partial name="_TableButtonPartial" model="item.Id" />
+                    }
+                    else
+                    {
+                        <td class="text-right">
+                            <div class="btn-group" role="group">
+                                <a type="button" class="btn btn-primary" href="@Url.Action("ViewDetails")/@item.Id"><i class="fas fa-search-plus"></i></a>                                
+                            </div>
+                        </td>
+                    }
                 </tr>
             }
         </table>
