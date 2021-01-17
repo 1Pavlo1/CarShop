@@ -6,48 +6,49 @@ using Microsoft.AspNetCore.Mvc;
 using CarShop.Models;
 using Microsoft.AspNetCore.Authorization;
 using CarShop.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 namespace CarShop.Controllers
 {
     [Authorize(Roles = Roles.Admin + "," + Roles.Executive)]
     public class BrandController : Controller
     {
-        private CarShopContext _dataBase;
+        private readonly CarShopContext _context;
 
         public BrandController(CarShopContext dataBase)
         {
-            _dataBase = dataBase;
+            _context = dataBase;
         }
         public IActionResult Create()
         {
             return View();
         }
         [HttpPost]
-        public IActionResult Create(Brand brand)
+        public async Task<IActionResult> Create(Brand brand)
         {
             if(ModelState.IsValid)
             {
-                _dataBase.Add(brand);
-                _dataBase.SaveChanges();
+                await _context.AddAsync(brand);
+                await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
             return View(brand);
         }
         [HttpPost]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var brand = _dataBase.Brands.Find(id);
+            var brand = await _context.Brands.FindAsync(id);
 
             if (brand == null)
                 return NotFound();
             
-            _dataBase.Remove(brand);
-            _dataBase.SaveChanges();
+            _context.Remove(brand);
+            await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var brand = _dataBase.Brands.Find(id);
+            var brand = await _context.Brands.FindAsync(id);
 
             if (brand == null)
                 return NotFound();
@@ -55,19 +56,19 @@ namespace CarShop.Controllers
             return View(brand);
         }
         [HttpPost]
-        public IActionResult Edit(Brand brand)
+        public async Task<IActionResult> Edit(Brand brand)
         {
             if (ModelState.IsValid)
             {
-                _dataBase.Update(brand);
-                _dataBase.SaveChanges();
+                _context.Update(brand);
+                await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
             return View(brand);
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View(_dataBase.Brands.ToList());
+            return View(await _context.Brands.ToListAsync());
         }       
     }
 }

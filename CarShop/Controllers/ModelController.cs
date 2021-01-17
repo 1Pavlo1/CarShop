@@ -16,25 +16,25 @@ namespace CarShop.Controllers
     [Authorize(Roles = Roles.Admin + "," + Roles.Executive)]
     public class ModelController : Controller
     {
-        private CarShopContext _dataBase;
+        private readonly CarShopContext _context;
         private readonly IMapper _mapper;
 
         [BindProperty]
         public ModelViewModel ModelVM { get; set; }
         public ModelController(CarShopContext dataBase, IMapper mapper)
         {
-            _dataBase = dataBase;
+            _context = dataBase;
             _mapper = mapper;
 
             ModelVM = new ModelViewModel()
             {
-                Brands = _dataBase.Brands.ToList(),
+                Brands = _context.Brands.ToList(),
                 Model = new Models.Model()
             };
         }
         public IActionResult Index()
         {
-            var model = _dataBase.Models.Include(b=>b.Brand);
+            var model = _context.Models.Include(b=>b.Brand);
             return View(model);
         }
         public IActionResult Create()
@@ -43,19 +43,19 @@ namespace CarShop.Controllers
         }
 
         [HttpPost, ActionName("Create")]
-        public IActionResult CreatePost()
+        public async Task<IActionResult> CreatePost()
         {
             if(!ModelState.IsValid)
                 return View(ModelVM);
 
-            _dataBase.Add(ModelVM.Model);
-            _dataBase.SaveChanges();
+            await _context.AddAsync(ModelVM.Model);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction("Index");
         }
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            ModelVM.Model = _dataBase.Models.Include(b => b.Brand).SingleOrDefault(b => b.Id == id);
+            ModelVM.Model = await _context.Models.Include(b => b.Brand).SingleOrDefaultAsync(b => b.Id == id);
 
             if (ModelVM.Model == null)
                 return NotFound();
@@ -64,35 +64,35 @@ namespace CarShop.Controllers
         }
 
         [HttpPost, ActionName("Edit")]
-        public IActionResult EditPost()
+        public async Task<IActionResult> EditPost()
         {
             if (!ModelState.IsValid)
                 return View(ModelVM);
 
-            _dataBase.Update(ModelVM.Model);
-            _dataBase.SaveChanges();
+            _context.Update(ModelVM.Model);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction("Index");
         }
 
         [HttpPost]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var model = _dataBase.Models.Find(id);
+            var model = await _context.Models.FindAsync(id);
 
             if (model == null)
                 return NotFound();
 
-            _dataBase.Models.Remove(model);
-            _dataBase.SaveChanges();
+            _context.Models.Remove(model);
+            await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
         [AllowAnonymous]
         [HttpGet("api/models/{brandId}")]
-        public IEnumerable<ModelResources> Models(int brandId)
+        public async Task<IEnumerable<ModelResources>> Models(int brandId)
         {
-            var models = _dataBase.Models.ToList();
+            var models = await _context.Models.ToListAsync();
             var modelResources = _mapper.Map<List<Model>, List<ModelResources>>(models)
                                  .Where(m => m.BrandId == brandId);
 

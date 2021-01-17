@@ -18,38 +18,38 @@ namespace CarShop.Controllers
     [Authorize(Roles = Roles.Admin + "," + Roles.Executive)]
     public class CarController : Controller
     {
-        private CarShopContext _dataBase;
-        private IWebHostEnvironment _webHostEnvironment;
+        private readonly CarShopContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
         [BindProperty]
         public CarViewModel CarVM { get; set; }
         public CarController(CarShopContext dataBase, IWebHostEnvironment webHostEnvironment)
         {
-            _dataBase = dataBase;
+            _context = dataBase;
             _webHostEnvironment = webHostEnvironment;
             CarVM = new CarViewModel()
             {
-                Brands = _dataBase.Brands.ToList(),
-                Models = _dataBase.Models.ToList(),
+                Brands = _context.Brands.ToList(),
+                Models = _context.Models.ToList(),
                 Car = new Models.Car()
             };
         }
         [AllowAnonymous]
-        public IActionResult Index(string searchString, string sortOrder, int pageNumber = 1, int pageSize = 5)
+        public async Task<IActionResult> Index(string searchString, string sortOrder, int pageNumber = 1, int pageSize = 5)
         {
             ViewBag.CurrenrSortOrder = sortOrder;
             ViewBag.CurrentFilter = searchString;
             ViewBag.PriceSortParam = String.IsNullOrEmpty(sortOrder) ? "price_desc" : "";
             int unsizedValues = (pageNumber * pageSize) - pageSize;
            
-            var cars = from c in _dataBase.Cars.Include(b => b.Brand).Include(m => m.Model)
+            var cars = from c in _context.Cars.Include(b => b.Brand).Include(m => m.Model)
                        select c;
             
-            var carCount = cars.Count();
+            var carCount = await cars.CountAsync();
 
             if (!String.IsNullOrEmpty(searchString))
             {
                 cars = cars.Where(c => c.Brand.Name.Contains(searchString));
-                carCount = cars.Count();
+                carCount = await cars.CountAsync();
             }                
 
             switch(sortOrder)
@@ -68,7 +68,7 @@ namespace CarShop.Controllers
 
             var pagedCarList = new PagedResult<Car>
             {
-                Data = cars.AsNoTracking().ToList(),
+                Data = await cars.AsNoTracking().ToListAsync(),
                 TotalItems = carCount,
                 PageNumber = pageNumber,
                 PageSize = pageSize
@@ -81,28 +81,28 @@ namespace CarShop.Controllers
             return View(CarVM);
         }
         [HttpPost, ActionName("Create")]
-        public IActionResult CreatePost()
+        public async Task<IActionResult> CreatePost()
         {        
             if (!ModelState.IsValid)
             {
-                CarVM.Brands = _dataBase.Brands.ToList();
-                CarVM.Models = _dataBase.Models.ToList();
+                CarVM.Brands = await _context.Brands.ToListAsync();
+                CarVM.Models = await _context.Models.ToListAsync();
                 return View(CarVM);
             }
 
-            _dataBase.Add(CarVM.Car);
+            await _context.AddAsync(CarVM.Car);
 
             UploadImage();
 
-            _dataBase.SaveChanges();
+            await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
         
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            CarVM.Car = _dataBase.Cars.SingleOrDefault(c => c.Id == id);            
+            CarVM.Car = await _context.Cars.SingleOrDefaultAsync(c => c.Id == id);            
 
-            CarVM.Models = _dataBase.Models.Where(m => m.BrandId == CarVM.Car.BrandId);
+            CarVM.Models = _context.Models.Where(m => m.BrandId == CarVM.Car.BrandId);
 
             if (CarVM.Car == null)
                 return NotFound();
@@ -110,38 +110,37 @@ namespace CarShop.Controllers
             return View(CarVM);
         }
         [HttpPost, ActionName("Edit")]
-        public IActionResult EditPost()        
+        public async Task<IActionResult> EditPost()        
         {
-
             if (!ModelState.IsValid)
             {
-                CarVM.Brands = _dataBase.Brands.ToList();
-                CarVM.Models = _dataBase.Models.ToList();
+                CarVM.Brands = await _context.Brands.ToListAsync();
+                CarVM.Models = await _context.Models.ToListAsync();
                 return View(CarVM);
             }            
-            _dataBase.Update(CarVM.Car);
+            _context.Update(CarVM.Car);
 
             UploadImage();
 
-            _dataBase.SaveChanges();
+            await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
         [HttpPost]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var car = _dataBase.Cars.Find(id);
+            var car = await _context.Cars.FindAsync(id);
 
             if (car == null)
                 return NotFound();
 
-            _dataBase.Cars.Remove(car);
-            _dataBase.SaveChanges();
+            _context.Cars.Remove(car);
+            await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
         [AllowAnonymous]
-        public IActionResult ViewDetails(int id)
+        public async Task<IActionResult> ViewDetails(int id)
         {
-            CarVM.Car = _dataBase.Cars.SingleOrDefault(c => c.Id == id);
+            CarVM.Car = await _context.Cars.SingleOrDefaultAsync(c => c.Id == id);
 
             if (CarVM.Car == null)
                 return NotFound();
@@ -149,12 +148,12 @@ namespace CarShop.Controllers
             return View(CarVM);
         }
 
-        private void UploadImage()
+        private async void UploadImage()
         {
             var carId = CarVM.Car.Id;
             var imgRootPath = _webHostEnvironment.WebRootPath;
             var files = HttpContext.Request.Form.Files;
-            var savedCar = _dataBase.Cars.Find(carId);
+            var savedCar = await _context.Cars.FindAsync(carId);
 
             if (files.Count != 0)
             {

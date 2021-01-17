@@ -14,12 +14,12 @@ namespace CarShop.Models
         public Brand Brand { get; set; }
         
         [RegularExpression("^[1-9]*$", ErrorMessage = "Select brand")]
-        public int BrandId { get; set; }
+        public int? BrandId { get; set; }
 
         public Model Model { get; set; }
         
         [RegularExpression("^[1-9]*$", ErrorMessage = "Select model")]
-        public int ModelId { get; set; }
+        public int? ModelId { get; set; }
 
         [Required(ErrorMessage = "Type year made")]
         [ValidTimeSpan(1930, ErrorMessage = "Invalid year")]

@@ -13,6 +13,6 @@ namespace CarShop.Models
         [StringLength(50)]
         public string Name { get; set; }
         public Brand Brand { get; set; }
-        public int BrandId { get; set; }
+        public int? BrandId { get; set; }
     }
 }
